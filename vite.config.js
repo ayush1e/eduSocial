@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ command, mode }) => {
   const isDev = command === 'serve'
   const isGitHubPages = process.env.DEPLOY_TARGET === 'github'
-  
+
   return {
     plugins: [react()],
     server: {
