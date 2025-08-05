@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for your backend API
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://7faf86fbfe1e.ngrok-free.app';
 
 // Create axios instance with default config
 const api = axios.create({
