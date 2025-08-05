@@ -307,13 +307,32 @@ const mcqService = {
 // Social Media Service
 const socialService = {
   // Posts
-  getFeed: async (page = 0, size = 10, userId = null) => {
+  getFeed: async (config = {}) => {
     try {
+      // Handle both old format and new config object format
+      let page, size, userId;
+      if (typeof config === 'object' && config.page !== undefined) {
+        // New config object format
+        page = config.page || 0;
+        size = config.size || 10;
+        userId = config.userId;
+      } else {
+        // Old format for backward compatibility
+        page = arguments[0] || 0;
+        size = arguments[1] || 10;
+        userId = arguments[2];
+      }
+
       // Use provided userId or get from localStorage
       const currentUser = userId ? { id: userId } : JSON.parse(localStorage.getItem('user') || '{}');
       const userParam = currentUser.id ? `&userId=${currentUser.id}` : '';
 
+      console.log('Social Feed - Making request to:', `/social/feed?page=${Math.max(0, page)}&size=${Math.min(Math.max(1, size), 50)}${userParam}`);
+
       const response = await api.get(`/social/feed?page=${Math.max(0, page)}&size=${Math.min(Math.max(1, size), 50)}${userParam}`);
+
+      console.log('Social Feed - Response:', response.data);
+
       return response.data || { content: [], last: true };
     } catch (error) {
       console.warn('Failed to load feed:', error);
@@ -476,8 +495,20 @@ const socialService = {
   },
 
   // Advanced Feeds
-  getTrendingFeed: async (page = 0, size = 10, userId = null) => {
+  getTrendingFeed: async (config = {}) => {
     try {
+      // Handle both old format and new config object format
+      let page, size, userId;
+      if (typeof config === 'object' && config.page !== undefined) {
+        page = config.page || 0;
+        size = config.size || 10;
+        userId = config.userId;
+      } else {
+        page = arguments[0] || 0;
+        size = arguments[1] || 10;
+        userId = arguments[2];
+      }
+
       const params = new URLSearchParams({
         page: Math.max(0, page),
         size: Math.min(Math.max(1, size), 50)
@@ -492,10 +523,23 @@ const socialService = {
     }
   },
 
-  getFollowingFeed: async (userId, page = 0, size = 10) => {
+  getFollowingFeed: async (config = {}) => {
     try {
+      // Handle both old format and new config object format
+      let page, size, userId;
+      if (typeof config === 'object' && config.userId !== undefined) {
+        userId = config.userId;
+        page = config.page || 0;
+        size = config.size || 10;
+      } else {
+        userId = arguments[0];
+        page = arguments[1] || 0;
+        size = arguments[2] || 10;
+      }
+
       if (!userId) {
-        throw new Error('User ID is required');
+        console.warn('User ID is required for following feed, falling back to general feed');
+        return await socialService.getFeed(config);
       }
 
       const response = await api.get(`/social/feed/following?userId=${userId}&page=${Math.max(0, page)}&size=${Math.min(Math.max(1, size), 50)}`);
@@ -506,10 +550,23 @@ const socialService = {
     }
   },
 
-  getPersonalizedFeed: async (userId, page = 0, size = 10) => {
+  getPersonalizedFeed: async (config = {}) => {
     try {
+      // Handle both old format and new config object format
+      let page, size, userId;
+      if (typeof config === 'object' && config.userId !== undefined) {
+        userId = config.userId;
+        page = config.page || 0;
+        size = config.size || 10;
+      } else {
+        userId = arguments[0];
+        page = arguments[1] || 0;
+        size = arguments[2] || 10;
+      }
+
       if (!userId) {
-        throw new Error('User ID is required');
+        console.warn('User ID is required for personalized feed, falling back to general feed');
+        return await socialService.getFeed(config);
       }
 
       const response = await api.get(`/social/feed/personalized?userId=${userId}&page=${Math.max(0, page)}&size=${Math.min(Math.max(1, size), 50)}`);

@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
   const isDev = command === 'serve'
-  const isGitHubPages = process.env.DEPLOY_TARGET === 'github'
+  const isProduction = mode === 'production'
 
   return {
     plugins: [react()],
@@ -22,6 +22,6 @@ export default defineConfig(({ command, mode }) => {
       outDir: 'dist',
       sourcemap: true
     },
-    base: isGitHubPages ? '/eduSocial/' : '/'
+    base: isProduction ? '/eduSocial/' : '/'
   }
 })
